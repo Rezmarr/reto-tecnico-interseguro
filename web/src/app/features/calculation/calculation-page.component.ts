@@ -24,7 +24,6 @@ export class CalculationPageComponent {
   readonly nodeUrl = signal(this.readSetting(STORAGE_NODE_URL, environment.nodeApiUrl));
   readonly result = signal<FactorizationResponse | null>(null);
   readonly busy = signal(false);
-  readonly settingsOpen = signal(false);
   readonly phase = signal<'idle' | 'checking' | 'calculating'>('idle');
   readonly inputError = signal('');
   readonly requestError = signal('');
@@ -76,25 +75,6 @@ export class CalculationPageComponent {
     this.result.set(null);
   }
 
-  saveConnections(): void {
-    const go = this.normalizeUrl(this.goUrl());
-    const node = this.normalizeUrl(this.nodeUrl());
-    if (!go || !node) {
-      this.requestError.set('Ingresa una dirección válida para las API de Go y Node.');
-      return;
-    }
-    this.goUrl.set(go);
-    this.nodeUrl.set(node);
-    localStorage.setItem(STORAGE_GO_URL, go);
-    localStorage.setItem(STORAGE_NODE_URL, node);
-    this.settingsOpen.set(false);
-    this.requestError.set('');
-  }
-
-  toggleSettings(): void {
-    this.settingsOpen.update((open) => !open);
-  }
-
   async factorize(): Promise<void> {
     this.inputError.set('');
     this.requestError.set('');
@@ -110,7 +90,6 @@ export class CalculationPageComponent {
     const nodeUrl = this.normalizeUrl(this.nodeUrl());
     if (!goUrl || !nodeUrl) {
       this.requestError.set('Configura las direcciones HTTP o HTTPS de las API antes de calcular.');
-      this.settingsOpen.set(true);
       return;
     }
 

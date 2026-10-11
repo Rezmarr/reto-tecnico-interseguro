@@ -1,4 +1,4 @@
-<div class="app-shell">
+<div class="app-shell" [class.results-focused]="result() !== null">
   <aside class="sidebar">
     <a class="brand" href="#inicio" aria-label="Matrix Lab inicio">
       <span class="brand-mark"><span></span><span></span><span></span><span></span></span>
@@ -30,49 +30,42 @@
     <div class="sidebar-footer">
       <span class="footer-avatar">ML</span>
       <span><strong>Laboratorio numérico</strong><small>Entorno de demostración</small></span>
-      <span class="footer-menu">···</span>
+      <button class="logout-button sidebar-logout" type="button" (click)="logout()" aria-label="Cerrar sesión" title="Cerrar sesión">Salir</button>
     </div>
   </aside>
 
   <main id="inicio" class="main-area">
-    <header class="topbar">
-      <div class="breadcrumb"><span>Espacio de trabajo</span><span class="crumb-slash">/</span><strong>Factorización QR</strong></div>
-      <button class="connection-button" type="button" (click)="toggleSettings()" [attr.aria-expanded]="settingsOpen()">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10.2 3.7 9.5 5.5a7 7 0 0 0-1.4.8l-1.9-.2-1.4 2.4 1.2 1.5a7 7 0 0 0 0 1.7l-1.2 1.5 1.4 2.4 1.9-.2a7 7 0 0 0 1.4.8l.7 1.8h2.8l.7-1.8a7 7 0 0 0 1.4-.8l1.9.2 1.4-2.4-1.2-1.5a7 7 0 0 0 0-1.7l1.2-1.5-1.4-2.4-1.9.2a7 7 0 0 0-1.4-.8l-.7-1.8z"/><circle cx="11.6" cy="10.8" r="2.5"/></svg>
-        <span>Conexiones</span>
-        <span class="connection-state" [class.connected]="goStatus().state === 'ready'">{{ goStatus().state === 'ready' ? 'Activa' : 'Configurar' }}</span>
-      </button>
-      <button class="logout-button" type="button" (click)="logout()">Cerrar sesión</button>
-    </header>
-
-    @if (settingsOpen()) {
-      <section class="settings-panel" aria-label="Configuración de las API">
-        <div class="settings-heading">
-          <div><span class="eyebrow">CONFIGURACIÓN</span><h2>Conecta tus servicios</h2></div>
-          <button class="icon-button" type="button" aria-label="Cerrar configuración" (click)="settingsOpen.set(false)">×</button>
-        </div>
-        <div class="settings-fields">
-          <label>API Go · cálculo
-            <input [ngModel]="goUrl()" (ngModelChange)="goUrl.set($event)" name="goUrl" placeholder="https://tu-api-go.onrender.com" autocomplete="url">
-          </label>
-          <label>API Node · salud del servicio
-            <input [ngModel]="nodeUrl()" (ngModelChange)="nodeUrl.set($event)" name="nodeUrl" placeholder="https://tu-api-node.onrender.com" autocomplete="url">
-          </label>
-          <button class="button button-dark save-button" type="button" (click)="saveConnections()">Guardar direcciones <span>→</span></button>
-        </div>
-        <p class="settings-note">En desarrollo se usan localhost:8080 y localhost:3000. Las direcciones se guardan en este navegador.</p>
-      </section>
-    }
-
     <div class="page-content" id="factorizacion">
-      <section class="page-heading">
+      @if (result(); as output) {
+        <section class="statistics-section">
+          <div class="statistics-title">
+            <div><span class="eyebrow">RESUMEN NUMÉRICO</span><h2>Estadísticas de Q + R</h2></div>
+            <div class="statistics-actions">
+              <span class="tolerance-label">Tolerancia <strong>{{ output.statistics.tolerance }}</strong></span>
+            </div>
+          </div>
+          <div class="stat-grid">
+            <article class="stat-card"><span>MÍNIMO</span><strong>{{ displayNumber(output.statistics.minimum) }}</strong><small>Valor menor</small></article>
+            <article class="stat-card"><span>MÁXIMO</span><strong>{{ displayNumber(output.statistics.maximum) }}</strong><small>Valor mayor</small></article>
+            <article class="stat-card"><span>SUMA</span><strong>{{ displayNumber(output.statistics.sum) }}</strong><small>Suma total</small></article>
+            <article class="stat-card stat-card-highlight"><span>PROMEDIO</span><strong>{{ displayNumber(output.statistics.average) }}</strong><small>Media de {{ output.statistics.count }} valores</small></article>
+          </div>
+          <div class="diagonal-row">
+            <div><span class="diagonal-icon">◫</span><span><strong>Diagonalidad</strong><small>Comprobada con tolerancia numérica</small></span></div>
+            <div class="diagonal-result"><span>Q <b [class.diagonal-yes]="output.statistics.diagonal.q.isDiagonal">{{ output.statistics.diagonal.q.isDiagonal === null ? 'No aplica' : output.statistics.diagonal.q.isDiagonal ? 'Diagonal' : 'No diagonal' }}</b></span><span>R <b [class.diagonal-yes]="output.statistics.diagonal.r.isDiagonal">{{ output.statistics.diagonal.r.isDiagonal === null ? 'No aplica' : output.statistics.diagonal.r.isDiagonal ? 'Diagonal' : 'No diagonal' }}</b></span></div>
+            <span class="diagonal-overall" [class.overall-yes]="output.statistics.diagonal.anyMatrixDiagonal">{{ output.statistics.diagonal.anyMatrixDiagonal ? 'Al menos una diagonal' : 'Ninguna diagonal' }}</span>
+          </div>
+        </section>
+      } @else {
+        <section class="page-heading">
         <div>
           <div class="eyebrow"><span class="eyebrow-line"></span> HERRAMIENTA DE ÁLGEBRA LINEAL</div>
           <h1>Factorización <span>QR</span></h1>
           <p class="page-description">Descompón una matriz en sus componentes ortogonal y triangular.</p>
         </div>
         <div class="engine-badge"><span class="engine-mark">∑</span><span><strong>Gonum / LAPACK</strong><small>Motor numérico</small></span><span class="badge-dot"></span></div>
-      </section>
+        </section>
+      }
 
       <section class="work-grid">
         <article class="panel input-panel">
@@ -181,24 +174,6 @@
         </article>
       </section>
 
-      @if (result(); as output) {
-        <section class="statistics-section">
-          <div class="statistics-title"><div><span class="eyebrow">RESUMEN NUMÉRICO</span><h2>Estadísticas de Q + R</h2></div><span class="tolerance-label">Tolerancia <strong>{{ output.statistics.tolerance }}</strong></span></div>
-          <div class="stat-grid">
-            <article class="stat-card"><span>MÍNIMO</span><strong>{{ displayNumber(output.statistics.minimum) }}</strong><small>Valor menor</small></article>
-            <article class="stat-card"><span>MÁXIMO</span><strong>{{ displayNumber(output.statistics.maximum) }}</strong><small>Valor mayor</small></article>
-            <article class="stat-card"><span>SUMA</span><strong>{{ displayNumber(output.statistics.sum) }}</strong><small>Suma total</small></article>
-            <article class="stat-card stat-card-highlight"><span>PROMEDIO</span><strong>{{ displayNumber(output.statistics.average) }}</strong><small>Media de {{ output.statistics.count }} valores</small></article>
-          </div>
-          <div class="diagonal-row">
-            <div><span class="diagonal-icon">◫</span><span><strong>Diagonalidad</strong><small>Comprobada con tolerancia numérica</small></span></div>
-            <div class="diagonal-result"><span>Q <b [class.diagonal-yes]="output.statistics.diagonal.q.isDiagonal">{{ output.statistics.diagonal.q.isDiagonal === null ? 'No aplica' : output.statistics.diagonal.q.isDiagonal ? 'Diagonal' : 'No diagonal' }}</b></span><span>R <b [class.diagonal-yes]="output.statistics.diagonal.r.isDiagonal">{{ output.statistics.diagonal.r.isDiagonal === null ? 'No aplica' : output.statistics.diagonal.r.isDiagonal ? 'Diagonal' : 'No diagonal' }}</b></span></div>
-            <span class="diagonal-overall" [class.overall-yes]="output.statistics.diagonal.anyMatrixDiagonal">{{ output.statistics.diagonal.anyMatrixDiagonal ? 'Al menos una diagonal' : 'Ninguna diagonal' }}</span>
-          </div>
-        </section>
-      }
-
-      <footer class="page-footer"><span>Matrix Lab <i>·</i> Factorización QR</span><span>Calculado con <strong>Gonum / LAPACK</strong> y estadísticas de Node.js</span></footer>
     </div>
   </main>
 </div>

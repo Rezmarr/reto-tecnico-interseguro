@@ -12,7 +12,7 @@ export class ApiService {
   }
 
   async login(baseUrl: string, username: string, password: string): Promise<TokenResponse> {
-    return firstValueFrom(this.http.post<TokenResponse>(`${baseUrl}/api/v1/auth/token`, { username, password }).pipe(timeout({ first: 15_000 })));
+    return firstValueFrom(this.http.post<TokenResponse>(`${baseUrl}/api/v1/auth/token`, { username, password }).pipe(timeout({ first: 60_000 })));
   }
 
   async factorize(baseUrl: string, matrix: number[][], token: string): Promise<FactorizationResponse> {

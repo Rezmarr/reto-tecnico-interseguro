@@ -8,6 +8,7 @@
 .brand-name { font-size: 18px; font-weight: 730; letter-spacing: -.8px; }
 .brand-name span { color: #63d8b2; }
 .login-brand { margin-bottom: 32px; }
+.render-startup-note { margin: 12px 0 20px; padding: 11px 12px; border: 1px solid #e8e2cf; border-radius: 7px; color: #806a3e; background: #fffcf4; font-size: 12px; line-height: 1.5; }
 .eyebrow { color: #43846b; font-size: 10px; font-weight: 750; letter-spacing: 1px; }
 h1 { margin: 10px 0 5px; color: #172338; font-size: 28px; }
 p { margin: 0 0 24px; color: #778393; font-size: 13px; line-height: 1.5; }

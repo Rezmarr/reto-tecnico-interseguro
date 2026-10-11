@@ -1,5 +1,5 @@
 export const environment = {
   production: true,
-  goApiUrl: '/go',
-  nodeApiUrl: '/node',
+  goApiUrl: 'https://reto-tecnico-go.onrender.com',
+  nodeApiUrl: 'https://reto-tecnico-node.onrender.com',
 };

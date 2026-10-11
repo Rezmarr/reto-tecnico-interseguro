@@ -1,6 +1,16 @@
 # Reto técnico
 
-Solución de factorización QR con Go/Fiber, Node.js/Express y Angular 21. El contrato está en [docs/CONTRATO_API.md](docs/CONTRATO_API.md). Las API están organizadas por módulos; Go usa Gonum/LAPACK para QR. JWT, pruebas automatizadas y Docker Compose están implementados.
+Aplicación web para factorizar matrices QR. El frontend está hecho con Angular 21, la API principal con Go/Fiber y el servicio de estadísticas con Node.js/Express. Go calcula QR mediante Gonum/LAPACK; Node analiza conjuntamente los valores de Q y R. La solución incluye autenticación JWT, pruebas automatizadas y ejecución con Docker Compose.
+
+## Flujo general
+
+1. El usuario ingresa sus credenciales en Angular. El frontend las envía a Go, que valida las credenciales de demostración y devuelve un JWT de corta duración.
+2. El usuario define la matriz en una cuadrícula y solicita el cálculo. Angular envía la matriz a Go con el JWT.
+3. Go valida la solicitud y los límites de tamaño, calcula `A = Q × R` y conserva las dimensiones completas definidas para Q y R, incluso para matrices rectangulares.
+4. Go envía Q y R a Node para calcular mínimo, máximo, suma, promedio, cantidad de valores y diagonalidad. La integración requiere el JWT y una clave de servicio independiente.
+5. Go combina los resultados y los devuelve a Angular, que presenta Q, R y sus estadísticas. Si una solicitud falla, las API responden con un error controlado y un identificador de solicitud cuando corresponde.
+
+El contrato HTTP, las formas de las matrices y los errores están descritos en [docs/CONTRATO_API.md](docs/CONTRATO_API.md).
 
 ## Levantar todo con Docker
 
@@ -16,6 +26,6 @@ El `.env` raíz solo configura el arranque local de Compose y está excluido de 
 
 ## Ejecutar las pruebas
 
-- Go: `cd api-go; go test ./...`
-- Node: `cd api-node; npm test`
-- Angular: `cd web; npm ci; npm test`
+- Go: ejecuta `go test ./...` desde `api-go`.
+- Node: ejecuta `npm ci` y `npm test` desde `api-node`.
+- Angular: ejecuta `npm ci` y `npm test` desde `web`.

@@ -1,0 +1,5 @@
+@if (accessToken(); as token) {
+  <app-calculation-page [accessToken]="token" (logoutRequested)="logout()" />
+} @else {
+  <app-auth-page (authenticated)="onAuthenticated($event)" />
+}

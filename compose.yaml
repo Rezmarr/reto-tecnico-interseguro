@@ -1,0 +1,56 @@
+services:
+  api-node:
+    build:
+      context: ./api-node
+    environment:
+      PORT: "3000"
+      JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET in the root .env file}
+      JWT_ISSUER: ${JWT_ISSUER:-reto-tecnico}
+      SERVICE_API_KEY: ${SERVICE_API_KEY:?Set SERVICE_API_KEY in the root .env file}
+      DIAGONAL_TOLERANCE: ${DIAGONAL_TOLERANCE:-1e-10}
+      MAX_MATRIX_ROWS: ${MAX_MATRIX_ROWS:-100}
+      MAX_MATRIX_COLUMNS: ${MAX_MATRIX_COLUMNS:-100}
+      MAX_MATRIX_ELEMENTS: ${MAX_MATRIX_ELEMENTS:-10000}
+      FRONTEND_ORIGINS: ${FRONTEND_ORIGINS:-http://localhost:8088}
+    networks: [backend]
+    restart: unless-stopped
+
+  api-go:
+    build:
+      context: ./api-go
+    environment:
+      PORT: "8080"
+      NODE_API_URL: http://api-node:3000
+      NODE_API_TIMEOUT: ${NODE_API_TIMEOUT:-90s}
+      JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET in the root .env file}
+      JWT_ISSUER: ${JWT_ISSUER:-reto-tecnico}
+      JWT_TTL: ${JWT_TTL:-15m}
+      DEMO_USERNAME: ${DEMO_USERNAME:?Set DEMO_USERNAME in the root .env file}
+      DEMO_PASSWORD: ${DEMO_PASSWORD:?Set DEMO_PASSWORD in the root .env file}
+      SERVICE_API_KEY: ${SERVICE_API_KEY:?Set SERVICE_API_KEY in the root .env file}
+      FRONTEND_ORIGINS: ${FRONTEND_ORIGINS:-http://localhost:8088}
+      MAX_MATRIX_ROWS: ${MAX_MATRIX_ROWS:-100}
+      MAX_MATRIX_COLUMNS: ${MAX_MATRIX_COLUMNS:-100}
+      MAX_MATRIX_ELEMENTS: ${MAX_MATRIX_ELEMENTS:-10000}
+    depends_on:
+      api-node:
+        condition: service_healthy
+    ports:
+      - "${GO_HOST_PORT:-8080}:8080"
+    networks: [backend]
+    restart: unless-stopped
+
+  web:
+    build:
+      context: ./web
+    depends_on:
+      api-go:
+        condition: service_healthy
+    ports:
+      - "${WEB_HOST_PORT:-8088}:80"
+    networks: [backend]
+    restart: unless-stopped
+
+networks:
+  backend:
+    driver: bridge

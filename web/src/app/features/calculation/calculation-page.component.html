@@ -1,0 +1,204 @@
+<div class="app-shell">
+  <aside class="sidebar">
+    <a class="brand" href="#inicio" aria-label="Matrix Lab inicio">
+      <span class="brand-mark"><span></span><span></span><span></span><span></span></span>
+      <span class="brand-name">matrix<span>lab</span></span>
+    </a>
+
+    <div class="workspace-label">ESPACIO DE TRABAJO</div>
+    <nav aria-label="Navegación principal">
+      <a class="nav-item active" href="#factorizacion">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><rect x="14" y="14" width="6" height="6" rx="1"/></svg>
+        Factorización QR <span class="nav-arrow">↗</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-spacer"></div>
+    <div class="service-stack">
+      <div class="stack-heading"><span class="pulse-dot"></span> SERVICIOS</div>
+      <div class="service-line">
+        <span class="service-icon go-icon">Go</span>
+        <span class="service-name">API de cálculo</span>
+        <span class="status-dot" [class]="'status-dot ' + goStatus().state" [attr.aria-label]="stateLabel(goStatus().state)"></span>
+      </div>
+      <div class="service-line">
+        <span class="service-icon node-icon">N</span>
+        <span class="service-name">API de estadísticas</span>
+        <span class="status-dot" [class]="'status-dot ' + nodeStatus().state" [attr.aria-label]="stateLabel(nodeStatus().state)"></span>
+      </div>
+    </div>
+    <div class="sidebar-footer">
+      <span class="footer-avatar">ML</span>
+      <span><strong>Laboratorio numérico</strong><small>Entorno de demostración</small></span>
+      <span class="footer-menu">···</span>
+    </div>
+  </aside>
+
+  <main id="inicio" class="main-area">
+    <header class="topbar">
+      <div class="breadcrumb"><span>Workspace</span><span class="crumb-slash">/</span><strong>Factorización QR</strong></div>
+      <button class="connection-button" type="button" (click)="toggleSettings()" [attr.aria-expanded]="settingsOpen()">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10.2 3.7 9.5 5.5a7 7 0 0 0-1.4.8l-1.9-.2-1.4 2.4 1.2 1.5a7 7 0 0 0 0 1.7l-1.2 1.5 1.4 2.4 1.9-.2a7 7 0 0 0 1.4.8l.7 1.8h2.8l.7-1.8a7 7 0 0 0 1.4-.8l1.9.2 1.4-2.4-1.2-1.5a7 7 0 0 0 0-1.7l1.2-1.5-1.4-2.4-1.9.2a7 7 0 0 0-1.4-.8l-.7-1.8z"/><circle cx="11.6" cy="10.8" r="2.5"/></svg>
+        <span>Conexiones</span>
+        <span class="connection-state" [class.connected]="goStatus().state === 'ready'">{{ goStatus().state === 'ready' ? 'Activa' : 'Configurar' }}</span>
+      </button>
+      <button class="logout-button" type="button" (click)="logout()">Cerrar sesión</button>
+    </header>
+
+    @if (settingsOpen()) {
+      <section class="settings-panel" aria-label="Configuración de las API">
+        <div class="settings-heading">
+          <div><span class="eyebrow">CONFIGURACIÓN</span><h2>Conecta tus servicios</h2></div>
+          <button class="icon-button" type="button" aria-label="Cerrar configuración" (click)="settingsOpen.set(false)">×</button>
+        </div>
+        <div class="settings-fields">
+          <label>API Go · cálculo
+            <input [ngModel]="goUrl()" (ngModelChange)="goUrl.set($event)" name="goUrl" placeholder="https://tu-api-go.onrender.com" autocomplete="url">
+          </label>
+          <label>API Node · salud del servicio
+            <input [ngModel]="nodeUrl()" (ngModelChange)="nodeUrl.set($event)" name="nodeUrl" placeholder="https://tu-api-node.onrender.com" autocomplete="url">
+          </label>
+          <button class="button button-dark save-button" type="button" (click)="saveConnections()">Guardar direcciones <span>→</span></button>
+        </div>
+        <p class="settings-note">En desarrollo se usan localhost:8080 y localhost:3000. Las direcciones se guardan en este navegador.</p>
+      </section>
+    }
+
+    <div class="page-content" id="factorizacion">
+      <section class="page-heading">
+        <div>
+          <div class="eyebrow"><span class="eyebrow-line"></span> HERRAMIENTA DE ÁLGEBRA LINEAL</div>
+          <h1>Factorización <span>QR</span></h1>
+          <p class="page-description">Descompón una matriz en sus componentes ortogonal y triangular.</p>
+        </div>
+        <div class="engine-badge"><span class="engine-mark">∑</span><span><strong>Gonum / LAPACK</strong><small>Motor numérico</small></span><span class="badge-dot"></span></div>
+      </section>
+
+      <section class="work-grid">
+        <article class="panel input-panel">
+          <div class="panel-heading">
+            <div class="panel-title-wrap"><span class="step-number">01</span><div><h2>Matriz de entrada</h2><p>Elige el tamaño y completa cada celda.</p></div></div>
+            <span class="input-tag">A</span>
+          </div>
+
+          <div class="preset-row" aria-label="Matrices de ejemplo">
+            <span class="preset-label">PROBAR</span>
+            <button type="button" (click)="usePreset('identity')">Identidad</button>
+            <button type="button" (click)="usePreset('tall')">Alta</button>
+            <button type="button" (click)="usePreset('wide')">Ancha</button>
+          </div>
+
+          <form (ngSubmit)="factorize()">
+            <div class="dimensions-panel">
+              <label>Filas
+                <input type="number" name="rows" min="1" max="100" [ngModel]="rowCount()" (ngModelChange)="resizeRows($event)">
+              </label>
+              <span class="dimension-times">×</span>
+              <label>Columnas
+                <input type="number" name="columns" min="1" max="100" [ngModel]="columnCount()" (ngModelChange)="resizeColumns($event)">
+              </label>
+              <span class="dimension-hint">Hasta 100 × 100</span>
+            </div>
+
+            <div class="matrix-grid-wrapper" [class.invalid]="inputError()" aria-label="Valores de la matriz">
+              <table class="matrix-input-table">
+                <thead><tr><th scope="col">#</th>@for (column of columnIndexes; track column) { <th scope="col">{{ column + 1 }}</th> }</tr></thead>
+                <tbody>
+                  @for (row of matrixCells(); track $index; let rowIndex = $index) {
+                    <tr><th scope="row">{{ rowIndex + 1 }}</th>
+                      @for (cell of row; track $index; let columnIndex = $index) {
+                        <td><input type="text" inputmode="decimal" autocomplete="off" [attr.aria-label]="'Fila ' + (rowIndex + 1) + ', columna ' + (columnIndex + 1)" [name]="'cell-' + rowIndex + '-' + columnIndex" [ngModel]="cell" (ngModelChange)="setCellValue(rowIndex, columnIndex, $event)"></td>
+                      }
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+            <div class="editor-footer" id="matrix-help"><span><i class="tiny-check">✓</i> Matriz rectangular</span><span>{{ rowCount() }} × {{ columnCount() }} · {{ rowCount() * columnCount() }} celdas</span></div>
+
+            @if (inputError()) { <div class="inline-error" id="matrix-error"><span>!</span>{{ inputError() }}</div> }
+
+            <div class="input-meta"><span class="meta-icon">⌘</span><span>Admite matrices cuadradas y rectangulares</span></div>
+            <button class="button button-primary calculate-button" type="submit" [disabled]="busy()">
+              @if (busy()) { <span class="button-spinner"></span><span>Calculando...</span> }
+              @else { <span>Calcular factorización</span><span class="button-arrow">→</span> }
+            </button>
+          </form>
+          <div class="privacy-note"><span class="lock-icon">⌑</span> Tu matriz solo se procesa durante esta solicitud.</div>
+        </article>
+
+        <article class="panel result-panel" [class.has-result]="result() !== null">
+          <div class="panel-heading result-heading">
+            <div class="panel-title-wrap"><span class="step-number">02</span><div><h2>Resultado</h2><p>Factores Q y R de tu matriz.</p></div></div>
+            @if (result(); as output) { <span class="success-pill"><i></i> COMPLETADO</span> }
+          </div>
+
+          @if (busy()) {
+            <div class="loading-state">
+              <div class="loading-orbit"><span></span><i>∑</i></div>
+              <span class="eyebrow">{{ phase() === 'checking' ? 'PREPARANDO SERVICIOS' : 'PROCESANDO MATRIZ' }}</span>
+              <h3>{{ phase() === 'checking' ? 'Conectando con las API' : 'Calculando la descomposición' }}</h3>
+              <p>{{ phase() === 'checking' ? 'Comprobamos que los servicios estén listos antes de enviar tu matriz.' : 'Go calcula QR y Node prepara las estadísticas.' }}</p>
+              <div class="loading-services">
+                <div class="loading-service"><span class="service-icon go-icon">Go</span><span>API Go</span><strong [class.ready-text]="goStatus().state === 'ready'">{{ stateLabel(goStatus().state) }}</strong></div>
+                <div class="loading-service"><span class="service-icon node-icon">N</span><span>API Node</span><strong [class.ready-text]="nodeStatus().state === 'ready'">{{ stateLabel(nodeStatus().state) }}</strong></div>
+              </div>
+              @if (coldStartNotice()) {
+                <div class="cold-start-note"><span>◷</span><span><strong>Los servicios están iniciando</strong><small>En el plan gratuito pueden tardar hasta un minuto después de un periodo sin actividad.</small></span></div>
+              }
+            </div>
+          } @else if (requestError()) {
+            <div class="error-state">
+              <div class="error-symbol">!</div><span class="eyebrow">NO SE PUDO COMPLETAR</span>
+              <h3>Revisa la conexión</h3><p>{{ requestError() }}</p>
+              @if (requestId()) { <small class="request-id">ID de solicitud: {{ requestId() }}</small> }
+              <button class="button button-light" type="button" (click)="factorize()">Intentar de nuevo <span>↻</span></button>
+            </div>
+          } @else if (result(); as output) {
+            <div class="result-content">
+              <div class="result-summary"><span class="success-mark">✓</span><span><strong>A = Q × R</strong><small>{{ output.shape.rows }} filas × {{ output.shape.columns }} columnas · {{ output.statistics.count }} valores analizados</small></span><span class="result-time">LISTO</span></div>
+              <div class="matrix-results">
+                @for (matrix of matrixPairs; track matrix.label) {
+                  <section class="matrix-card">
+                    <header><span class="matrix-letter" [class.matrix-r]="matrix.label === 'R'">{{ matrix.label }}</span><span><strong>{{ matrix.name }}</strong><small>{{ matrix.values.length }} × {{ matrix.values[0].length }}</small></span><span class="matrix-copy">{{ matrix.label === 'Q' ? 'QᵀQ = I' : 'Superior' }}</span></header>
+                    <div class="matrix-scroll"><table [attr.aria-label]="matrix.name"><tbody>
+                      @for (row of matrix.values; track $index; let rowIndex = $index) {
+                        <tr><th>{{ rowIndex + 1 }}</th>@for (value of row; track $index) { <td>{{ displayNumber(value) }}</td> }</tr>
+                      }
+                    </tbody></table></div>
+                  </section>
+                }
+              </div>
+              <div class="equation-note"><span class="equation-icon">≈</span><span><strong>Propiedades del resultado</strong><small>Q es ortogonal y R es trapezoidal superior.</small></span><span class="equation-ok">float64</span></div>
+            </div>
+          } @else {
+            <div class="empty-state">
+              <div class="empty-illustration"><div class="empty-grid"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><span class="empty-equals">=</span><div class="empty-grid empty-grid-accent"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
+              <span class="eyebrow">TU ESPACIO DE RESULTADOS</span><h3>Q y R aparecerán aquí</h3><p>Escribe o elige una matriz de ejemplo y ejecuta el cálculo para explorar su descomposición.</p>
+              <div class="empty-hint"><span>↳</span> El resultado incluye estadísticas y diagonalidad.</div>
+            </div>
+          }
+        </article>
+      </section>
+
+      @if (result(); as output) {
+        <section class="statistics-section">
+          <div class="statistics-title"><div><span class="eyebrow">RESUMEN NUMÉRICO</span><h2>Estadísticas de Q + R</h2></div><span class="tolerance-label">Tolerancia <strong>{{ output.statistics.tolerance }}</strong></span></div>
+          <div class="stat-grid">
+            <article class="stat-card"><span>MÍNIMO</span><strong>{{ displayNumber(output.statistics.minimum) }}</strong><small>Valor menor</small></article>
+            <article class="stat-card"><span>MÁXIMO</span><strong>{{ displayNumber(output.statistics.maximum) }}</strong><small>Valor mayor</small></article>
+            <article class="stat-card"><span>SUMA</span><strong>{{ displayNumber(output.statistics.sum) }}</strong><small>Suma total</small></article>
+            <article class="stat-card stat-card-highlight"><span>PROMEDIO</span><strong>{{ displayNumber(output.statistics.average) }}</strong><small>Media de {{ output.statistics.count }} valores</small></article>
+          </div>
+          <div class="diagonal-row">
+            <div><span class="diagonal-icon">◫</span><span><strong>Diagonalidad</strong><small>Comprobada con tolerancia numérica</small></span></div>
+            <div class="diagonal-result"><span>Q <b [class.diagonal-yes]="output.statistics.diagonal.q.isDiagonal">{{ output.statistics.diagonal.q.isDiagonal === null ? 'No aplica' : output.statistics.diagonal.q.isDiagonal ? 'Diagonal' : 'No diagonal' }}</b></span><span>R <b [class.diagonal-yes]="output.statistics.diagonal.r.isDiagonal">{{ output.statistics.diagonal.r.isDiagonal === null ? 'No aplica' : output.statistics.diagonal.r.isDiagonal ? 'Diagonal' : 'No diagonal' }}</b></span></div>
+            <span class="diagonal-overall" [class.overall-yes]="output.statistics.diagonal.anyMatrixDiagonal">{{ output.statistics.diagonal.anyMatrixDiagonal ? 'Al menos una diagonal' : 'Ninguna diagonal' }}</span>
+          </div>
+        </section>
+      }
+
+      <footer class="page-footer"><span>Matrix Lab <i>·</i> Factorización QR</span><span>Calculado con <strong>Gonum / LAPACK</strong> y estadísticas de Node.js</span></footer>
+    </div>
+  </main>
+</div>

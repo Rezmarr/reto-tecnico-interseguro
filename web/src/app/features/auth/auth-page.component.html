@@ -1,0 +1,41 @@
+<main class="login-screen">
+  <section class="login-card">
+    <a class="brand login-brand" href="#inicio" aria-label="Matrix Lab inicio">
+      <span class="brand-mark"
+        ><span></span><span></span><span></span><span></span
+      ></span>
+      <span class="brand-name">matrix<span>lab</span></span>
+    </a>
+    <div class="eyebrow">ACCESO DE DEMOSTRACIÓN</div>
+    <h1>Inicia sesión</h1>
+    <form (ngSubmit)="login()">
+      <label
+        >Usuario
+        <input
+          name="username"
+          autocomplete="username"
+          [ngModel]="username()"
+          (ngModelChange)="username.set($event)"
+          required
+        />
+      </label>
+      <label
+        >Contraseña
+        <input
+          name="password"
+          type="password"
+          autocomplete="current-password"
+          [ngModel]="password()"
+          (ngModelChange)="password.set($event)"
+          required
+        />
+      </label>
+      @if (error()) {
+        <div class="login-error" role="alert">{{ error() }}</div>
+      }
+      <button class="login-button" type="submit" [disabled]="busy()">
+        {{ busy() ? "Conectando…" : "Iniciar sesión →" }}
+      </button>
+    </form>
+  </section>
+</main>

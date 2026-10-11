@@ -5,7 +5,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { ApiService } from './api.service';
 import { FactorizationResponse } from './models';
 
-describe('ApiService HTTP integration', () => {
+describe('Integración HTTP de ApiService', () => {
   let api: ApiService;
   let http: HttpTestingController;
 
@@ -17,7 +17,7 @@ describe('ApiService HTTP integration', () => {
 
   afterEach(() => http.verify());
 
-  it('requests and returns a token from the Go authentication route', async () => {
+  it('solicita y recibe un token de la ruta de autenticación de Go', async () => {
     const response = { accessToken: 'signed-token', tokenType: 'Bearer' as const, expiresIn: 900, expiresAt: '2030-01-01T00:15:00Z' };
     const promise = api.login('https://go.example.test', 'demo', 'password');
     const request = http.expectOne('https://go.example.test/api/v1/auth/token');
@@ -27,7 +27,7 @@ describe('ApiService HTTP integration', () => {
     await expect(promise).resolves.toEqual(response);
   });
 
-  it('attaches the user token to the factorization request', async () => {
+  it('adjunta el token de usuario a la solicitud de factorización', async () => {
     const response = { shape: { rows: 1, columns: 1 }, q: [[1]], r: [[2]], statistics: {} } as unknown as FactorizationResponse;
     const promise = api.factorize('https://go.example.test', [[2]], 'signed-token');
     const request = http.expectOne('https://go.example.test/api/v1/factorizations');

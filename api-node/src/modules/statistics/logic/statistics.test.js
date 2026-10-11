@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { calculateStatistics, NumericalError } from "./statistics.js";
 
-test("calculates combined aggregates and diagonal applicability", () => {
+test("calcula agregados conjuntos y aplicabilidad de diagonalidad", () => {
   const result = calculateStatistics({
     q: [[1, 0], [0, 1]],
     r: [[1, 2, 3], [0, 4, 5]],
@@ -18,13 +18,13 @@ test("calculates combined aggregates and diagonal applicability", () => {
   });
 });
 
-test("uses configured tolerance when checking diagonal matrices", () => {
+test("usa la tolerancia configurada al comprobar matrices diagonales", () => {
   const result = calculateStatistics({ q: [[1, 0.001], [0, 1]], r: [[1, 0], [0, 1]] }, 0.01);
   assert.equal(result.diagonal.q.isDiagonal, true);
   assert.equal(result.diagonal.r.isDiagonal, true);
   assert.equal(result.diagonal.anyMatrixDiagonal, true);
 });
 
-test("rejects non-finite aggregate sums", () => {
+test("rechaza sumas agregadas no finitas", () => {
   assert.throws(() => calculateStatistics({ q: [[Number.MAX_VALUE]], r: [[Number.MAX_VALUE]] }, 0), NumericalError);
 });

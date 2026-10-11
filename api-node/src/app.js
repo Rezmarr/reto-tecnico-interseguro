@@ -14,7 +14,7 @@ export function createApp(config) {
   registerHealthRoutes(app);
   registerStatisticsRoutes(app, config);
   app.use((req, _res, next) => {
-    const error = new Error(`Route not found: ${req.method} ${req.path}`);
+    const error = new Error(`Ruta no encontrada: ${req.method} ${req.path}`);
     error.status = 404;
     error.code = "NOT_FOUND";
     next(error);

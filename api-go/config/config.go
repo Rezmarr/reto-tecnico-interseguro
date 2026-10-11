@@ -33,18 +33,18 @@ type Config struct {
 
 func Load() (Config, error) {
 	if err := godotenv.Load(); err != nil && !errors.Is(err, os.ErrNotExist) {
-		return Config{}, fmt.Errorf("load .env: %w", err)
+		return Config{}, fmt.Errorf("error al cargar el archivo .env: %w", err)
 	}
 
 	port := envString("PORT", "8080")
 	portNumber, err := strconv.Atoi(port)
 	if err != nil || portNumber < 1 || portNumber > 65535 {
-		return Config{}, fmt.Errorf("PORT must be an integer between 1 and 65535")
+		return Config{}, fmt.Errorf("PORT debe ser un entero entre 1 y 65535")
 	}
 
 	timeout, err := time.ParseDuration(envString("NODE_API_TIMEOUT", "90s"))
 	if err != nil || timeout <= 0 {
-		return Config{}, fmt.Errorf("NODE_API_TIMEOUT must be a positive Go duration")
+		return Config{}, fmt.Errorf("NODE_API_TIMEOUT debe ser una duración positiva de Go")
 	}
 
 	maxRows, err := envPositiveInt("MAX_MATRIX_ROWS", 100)
@@ -67,20 +67,20 @@ func Load() (Config, error) {
 	serviceKey := os.Getenv("SERVICE_API_KEY")
 	username, password := os.Getenv("DEMO_USERNAME"), os.Getenv("DEMO_PASSWORD")
 	if decodeErr != nil {
-		return Config{}, fmt.Errorf("JWT_SECRET must be valid standard Base64 (remove any extra quotes)")
+		return Config{}, fmt.Errorf("JWT_SECRET debe ser Base64 estándar válido; quita las comillas adicionales si las hay")
 	}
 	if len(jwtSecret) < 32 {
-		return Config{}, fmt.Errorf("JWT_SECRET must decode to at least 32 bytes (currently %d)", len(jwtSecret))
+		return Config{}, fmt.Errorf("JWT_SECRET debe decodificarse a por lo menos 32 bytes (actualmente tiene %d)", len(jwtSecret))
 	}
 	if len(serviceKey) < 32 {
-		return Config{}, fmt.Errorf("SERVICE_API_KEY must contain at least 32 bytes")
+		return Config{}, fmt.Errorf("SERVICE_API_KEY debe contener por lo menos 32 bytes")
 	}
 	if username == "" || password == "" {
-		return Config{}, fmt.Errorf("DEMO_USERNAME and DEMO_PASSWORD are required")
+		return Config{}, fmt.Errorf("DEMO_USERNAME y DEMO_PASSWORD son obligatorios")
 	}
 	ttl, err := time.ParseDuration(envString("JWT_TTL", "15m"))
 	if err != nil || ttl <= 0 || ttl > 24*time.Hour {
-		return Config{}, fmt.Errorf("JWT_TTL must be a positive duration no longer than 24h")
+		return Config{}, fmt.Errorf("JWT_TTL debe ser una duración positiva de máximo 24h")
 	}
 
 	return Config{
@@ -121,7 +121,7 @@ func envPositiveInt(key string, fallback int) (int, error) {
 	}
 	parsed, err := strconv.Atoi(value)
 	if err != nil || parsed <= 0 {
-		return 0, fmt.Errorf("%s must be a positive integer", key)
+		return 0, fmt.Errorf("%s debe ser un entero positivo", key)
 	}
 	return parsed, nil
 }

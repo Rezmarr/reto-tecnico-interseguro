@@ -12,7 +12,7 @@ export function createErrorHandler() {
       code = "INVALID_PAYLOAD";
       message = "El cuerpo debe contener JSON válido.";
     }
-    if (status >= 500) console.error("Unhandled request error", { requestId: req.requestId, error });
+    if (status >= 500) console.error("Error inesperado al procesar la solicitud", { requestId: req.requestId, error });
     return res.status(status).json({ error: { code, message, requestId: req.requestId } });
   };
 }

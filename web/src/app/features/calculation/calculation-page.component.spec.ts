@@ -4,14 +4,14 @@ import { ApiService } from '../../shared/api.service';
 import { FactorizationResponse } from '../../shared/models';
 import { CalculationPageComponent } from './calculation-page.component';
 
-describe('CalculationPageComponent', () => {
+describe('Componente de cálculo', () => {
   let api: { checkHealth: ReturnType<typeof vi.fn>; factorize: ReturnType<typeof vi.fn>; errorMessage: ReturnType<typeof vi.fn> };
 
   beforeEach(async () => {
     api = {
       checkHealth: vi.fn().mockResolvedValue(undefined),
       factorize: vi.fn().mockResolvedValue({ shape: { rows: 3, columns: 2 }, q: [], r: [], statistics: {} } as unknown as FactorizationResponse),
-      errorMessage: vi.fn().mockReturnValue({ message: 'API error' }),
+      errorMessage: vi.fn().mockReturnValue({ message: 'Error de API' }),
     };
     await TestBed.configureTestingModule({
       imports: [CalculationPageComponent],
@@ -19,7 +19,7 @@ describe('CalculationPageComponent', () => {
     }).compileComponents();
   });
 
-  it('renders the default matrix as editable cells', () => {
+  it('muestra la matriz inicial en celdas editables', () => {
     const fixture = TestBed.createComponent(CalculationPageComponent);
     fixture.componentRef.setInput('accessToken', 'test-token');
     fixture.detectChanges();
@@ -27,7 +27,7 @@ describe('CalculationPageComponent', () => {
     expect(fixture.nativeElement.querySelector('textarea')).toBeNull();
   });
 
-  it('resizes the grid while preserving cells that remain in range', () => {
+  it('redimensiona la cuadrícula y conserva las celdas que siguen dentro del rango', () => {
     const fixture = TestBed.createComponent(CalculationPageComponent);
     fixture.componentRef.setInput('accessToken', 'test-token');
     const page = fixture.componentInstance;
@@ -38,7 +38,7 @@ describe('CalculationPageComponent', () => {
     expect(fixture.nativeElement.querySelectorAll('.matrix-input-table tbody input').length).toBe(6);
   });
 
-  it('does not submit when any matrix cell is empty', async () => {
+  it('no envía la matriz si alguna celda está vacía', async () => {
     const fixture = TestBed.createComponent(CalculationPageComponent);
     fixture.componentRef.setInput('accessToken', 'test-token');
     await fixture.whenStable();
@@ -48,7 +48,7 @@ describe('CalculationPageComponent', () => {
     expect(api.factorize).not.toHaveBeenCalled();
   });
 
-  it('submits numeric cells and the access token to Go', async () => {
+  it('envía las celdas numéricas y el token de acceso a Go', async () => {
     const fixture = TestBed.createComponent(CalculationPageComponent);
     fixture.componentRef.setInput('accessToken', 'test-token');
     await fixture.whenStable();

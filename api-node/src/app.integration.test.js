@@ -28,7 +28,7 @@ async function createToken() {
     .sign(secret);
 }
 
-test("health is public; statistics require a valid user JWT and service credential", async (t) => {
+test("salud pública y estadísticas protegidas por JWT de usuario y credencial de servicio", async (t) => {
   const server = createApp(config).listen(0, "127.0.0.1");
   await once(server, "listening");
   t.after(() => new Promise((resolve, reject) => server.close((error) => error ? reject(error) : resolve())));

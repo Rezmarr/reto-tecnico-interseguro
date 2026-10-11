@@ -10,8 +10,8 @@ try {
   }
   const config = loadConfig();
   const app = createApp(config);
-  app.listen(config.port, "0.0.0.0", () => console.log(`Node API listening on :${config.port}`));
+  app.listen(config.port, "0.0.0.0", () => console.log(`La API de Node está escuchando en el puerto ${config.port}`));
 } catch (error) {
-  console.error(`Unable to start Node API: ${error.message}`);
+  console.error(`No se pudo iniciar la API de Node: ${error.message}`);
   process.exitCode = 1;
 }

@@ -4,12 +4,12 @@ import { InputError, validateStatisticsRequest } from "./matrices.js";
 
 const config = { maxMatrixRows: 5, maxMatrixColumns: 5, maxMatrixElements: 20 };
 
-test("accepts rectangular R and square Q within the combined element limit", () => {
+test("acepta R rectangular y Q cuadrada dentro del límite conjunto de elementos", () => {
   const matrices = { q: [[1, 0], [0, 1]], r: [[1, 2, 3], [0, 4, 5]] };
   assert.equal(validateStatisticsRequest({ matrices }, config), matrices);
 });
 
-test("rejects malformed contracts and invalid matrix shapes", () => {
+test("rechaza contratos malformados y dimensiones de matriz inválidas", () => {
   const cases = [
     [{}, "INVALID_PAYLOAD"],
     [{ matrices: { q: [[1]], r: [[1]], extra: [] } }, "INVALID_PAYLOAD"],

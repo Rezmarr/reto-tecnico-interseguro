@@ -17,9 +17,9 @@ import (
 )
 
 var (
-	ErrUnavailable = errors.New("Node API is unavailable")
-	ErrTimeout     = errors.New("Node API timed out")
-	ErrBadResponse = errors.New("Node API returned an invalid response")
+	ErrUnavailable = errors.New("la API de Node no está disponible")
+	ErrTimeout     = errors.New("la API de Node agotó el tiempo de espera")
+	ErrBadResponse = errors.New("la API de Node devolvió una respuesta inválida")
 )
 
 type Client struct {
@@ -31,7 +31,7 @@ type Client struct {
 func New(baseURL string, timeout time.Duration, serviceKey string) (*Client, error) {
 	parsed, err := url.Parse(strings.TrimRight(baseURL, "/"))
 	if err != nil || (parsed.Scheme != "http" && parsed.Scheme != "https") || parsed.Host == "" {
-		return nil, fmt.Errorf("NODE_API_URL must be an absolute HTTP(S) URL")
+		return nil, fmt.Errorf("NODE_API_URL debe ser una URL absoluta HTTP o HTTPS")
 	}
 	parsed.Path = strings.TrimRight(parsed.Path, "/") + "/api/v1/statistics"
 	return &Client{
@@ -45,11 +45,11 @@ func (client *Client) CalculateStatistics(ctx context.Context, requestID, userTo
 		Matrices: map[string][][]float64{"q": q, "r": r},
 	})
 	if err != nil {
-		return contracts.StatisticsResponse{}, fmt.Errorf("encode Node API request: %w", err)
+		return contracts.StatisticsResponse{}, fmt.Errorf("error al codificar la solicitud para la API de Node: %w", err)
 	}
 	request, err := http.NewRequestWithContext(ctx, http.MethodPost, client.endpoint, bytes.NewReader(body))
 	if err != nil {
-		return contracts.StatisticsResponse{}, fmt.Errorf("create Node API request: %w", err)
+		return contracts.StatisticsResponse{}, fmt.Errorf("error al crear la solicitud para la API de Node: %w", err)
 	}
 	request.Header.Set("Content-Type", "application/json")
 	request.Header.Set("Accept", "application/json")
@@ -89,22 +89,22 @@ func (client *Client) CalculateStatistics(ctx context.Context, requestID, userTo
 func validateResult(result contracts.StatisticsResponse, expectedCount int, rIsSquare bool) error {
 	for _, value := range []float64{result.Minimum, result.Maximum, result.Sum, result.Average, result.Tolerance} {
 		if math.IsNaN(value) || math.IsInf(value, 0) {
-			return errors.New("non-finite statistics")
+		return errors.New("las estadísticas contienen valores no finitos")
 		}
 	}
 	if result.Count != expectedCount || result.Count == 0 || result.Minimum > result.Maximum || result.Tolerance < 0 {
-		return errors.New("inconsistent statistics")
+		return errors.New("las estadísticas son inconsistentes")
 	}
 	if !validDiagonalCheck(result.Diagonal.Q) || !validDiagonalCheck(result.Diagonal.R) {
-		return errors.New("inconsistent diagonal result")
+		return errors.New("el resultado de diagonalidad es inconsistente")
 	}
 	if !result.Diagonal.Q.Applicable || result.Diagonal.R.Applicable != rIsSquare {
-		return errors.New("diagonal applicability does not match matrix dimensions")
+		return errors.New("la aplicabilidad de la diagonalidad no coincide con las dimensiones de la matriz")
 	}
 	anyDiagonal := (result.Diagonal.Q.Applicable && *result.Diagonal.Q.IsDiagonal) ||
 		(result.Diagonal.R.Applicable && *result.Diagonal.R.IsDiagonal)
 	if result.Diagonal.AnyMatrixDiagonal != anyDiagonal || result.Average < result.Minimum || result.Average > result.Maximum {
-		return errors.New("inconsistent aggregate statistics")
+		return errors.New("las estadísticas agregadas son inconsistentes")
 	}
 	return nil
 }

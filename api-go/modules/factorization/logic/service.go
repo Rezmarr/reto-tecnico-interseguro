@@ -8,7 +8,7 @@ import (
 	"gonum.org/v1/gonum/lapack/lapack64"
 )
 
-var ErrNumericalFailure = errors.New("QR factorization produced a non-finite value")
+var ErrNumericalFailure = errors.New("la factorización QR produjo un valor no finito")
 
 type Service struct{}
 

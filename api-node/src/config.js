@@ -5,7 +5,7 @@ function positiveInteger(name, fallback) {
   const value = process.env[name];
   if (value === undefined || value === "") return fallback;
   const parsed = Number(value);
-  if (!Number.isSafeInteger(parsed) || parsed <= 0) throw new Error(`${name} must be a positive integer`);
+  if (!Number.isSafeInteger(parsed) || parsed <= 0) throw new Error(`${name} debe ser un entero positivo`);
   return parsed;
 }
 
@@ -13,13 +13,13 @@ function nonNegativeFiniteNumber(name, fallback) {
   const value = process.env[name];
   if (value === undefined || value === "") return fallback;
   const parsed = Number(value);
-  if (!Number.isFinite(parsed) || parsed < 0) throw new Error(`${name} must be a non-negative finite number`);
+  if (!Number.isFinite(parsed) || parsed < 0) throw new Error(`${name} debe ser un número finito no negativo`);
   return parsed;
 }
 
 export function loadConfig() {
   const port = positiveInteger("PORT", DEFAULT_PORT);
-  if (port > 65535) throw new Error("PORT must be between 1 and 65535");
+  if (port > 65535) throw new Error("PORT debe ser un entero entre 1 y 65535");
   let encodedJwtSecret = (process.env.JWT_SECRET ?? "").trim();
   if ((encodedJwtSecret.startsWith('"') && encodedJwtSecret.endsWith('"')) ||
       (encodedJwtSecret.startsWith("'") && encodedJwtSecret.endsWith("'"))) {
@@ -28,10 +28,10 @@ export function loadConfig() {
   const jwtSecret = Buffer.from(encodedJwtSecret, "base64");
   const serviceApiKey = process.env.SERVICE_API_KEY ?? "";
   if (jwtSecret.toString("base64") !== encodedJwtSecret) {
-    throw new Error("JWT_SECRET must be valid standard Base64 (remove any extra quotes)");
+    throw new Error("JWT_SECRET debe ser Base64 estándar válido; quita las comillas adicionales si las hay");
   }
-  if (jwtSecret.length < 32) throw new Error(`JWT_SECRET must decode to at least 32 bytes (currently ${jwtSecret.length})`);
-  if (Buffer.byteLength(serviceApiKey) < 32) throw new Error("SERVICE_API_KEY must contain at least 32 bytes");
+  if (jwtSecret.length < 32) throw new Error(`JWT_SECRET debe decodificarse a por lo menos 32 bytes (actualmente tiene ${jwtSecret.length})`);
+  if (Buffer.byteLength(serviceApiKey) < 32) throw new Error("SERVICE_API_KEY debe contener por lo menos 32 bytes");
   return Object.freeze({
     port,
     jwtSecret,

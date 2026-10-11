@@ -3,13 +3,13 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ApiService } from './shared/api.service';
 import { AppComponent } from './app.component';
 
-describe('AppComponent session integration', () => {
+describe('Integración de sesión de AppComponent', () => {
   beforeEach(() => {
     sessionStorage.clear();
     localStorage.clear();
   });
 
-  it('switches from authentication to calculation and back on logout', async () => {
+  it('cambia de autenticación a cálculo y vuelve al cerrar sesión', async () => {
     await TestBed.configureTestingModule({
       imports: [AppComponent],
       providers: [{
